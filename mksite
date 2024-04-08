@@ -1,0 +1,27 @@
+[ -z ${TEMPLATEDIR+x} ] && TEMPLATEDIR="$(xdg-user-dir TEMPLATES)"
+[ -z ${CODE_FOLDER+x} ] && CODE_FOLDER="$HOME/Codice"
+[ -z ${SITESFOLDER+x} ] && SITESFOLDER="$CODE_FOLDER/Siti Web"
+
+if [ "$1" != "" ]; then
+	SITE_NAME="$1"
+	echo "Creating website $SITE_NAME..."
+
+	SITE_TYPE=${2:-static}
+	if [ "$SITE_TYPE" == "jekyll" ]; then
+		SITE_TEMPLATE="$TEMPLATEDIR/Sito Jekyll"
+	else if [ "$SITE_TYPE" == "express" ]; then
+		SITE_TEMPLATE="$TEMPLATEDIR/App Express"
+	else
+		SITE_TEMPLATE="$TEMPLATEDIR/Sito"
+	fi
+	echo "Website type: $SITE_TYPE"
+	echo "Using template $SITE_TEMPLATE"
+
+	cp -rnv "$SITE_TEMPLATE" "$SITESFOLDER/$SITE_NAME"
+	for file in "$SITESFOLDER/$SITE_NAME"; do
+		echo "Adding site title to $file"
+		sed -i -e "s/%/$SITE_NAME/g" "$file"
+	done
+else
+	echo "Specify website name"
+fi
