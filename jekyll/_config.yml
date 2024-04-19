@@ -1,9 +1,9 @@
-title: %
-email:
+title: {name}
+email: {email}
 description: >-
-    
+    {description}
 baseurl: ""
-url: ""
+url: "{url}"
 
 kramdown:
   input: GFM

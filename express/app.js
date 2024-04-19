@@ -4,11 +4,13 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var astropix = require('./routes/index');
+var index = require('./routes/index');
 
 var app = express();
 
-const LOGFILE = process.env.LOGFILE || '/tmp/site.log';
+site = require('./config.js');
+app.locals.site = site;
+const LOGFILE = process.env.LOGFILE || '/tmp/site-{name}.log';
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

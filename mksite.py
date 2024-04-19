@@ -10,6 +10,11 @@ templates_dir=os.popen("xdg-user-dir TEMPLATES").read().strip()
 code_folder="~/Codice"
 sitesfolder=os.path.join(code_folder, "Siti Web")
 
+def files(path):
+    for file in os.listdir(path):
+        if os.path.isfile(os.path.join(path, file)):
+            yield os.path.join(path, file)
+
 class SiteType(Enum):
     static="static"
     jekyll="jekyll"
@@ -50,17 +55,19 @@ class Site:
 
     def __init__(self, name, parent_dir):
         self.name = name
-        self.path = os.path.join(parent_dir, name)
+        self.parent_dir = os.path.abspath(parent_dir)
+        self.path = os.path.join(self.parent_dir, name)
         self.index_file = os.path.join(self.path, "index.html")
         shutil.copytree(self.template, self.path)
         os.chdir(self.path)
         for command in self.build_commands:
             os.system(command)
+        os.chdir(self.parent_dir)
 
     def subst(self, title, description="", url="", lang="", email=""):
         with open(self.index_file, 'r') as file:
             filedata = file.read()
-        filedata = filedata.format(title, description, lang=lang)
+        filedata = filedata.format(name=title, description=description, lang=lang, url=url, email=email)
         with open(self.index_file, 'w') as file:
             file.write(filedata)
 
@@ -77,11 +84,35 @@ class JekyllSite(Site):
     preview_commands=["jekyll s"]
     static=True
 
+    def __init__(self, name, parent_dir):
+        super().__init__(self, name, parent_dir)
+        self.index_file = os.path.join(self.path, "index.markdown")
+        self.config_file = os.path.join(self.path, "_config.yml")
+
+    def subst(self, title, description="", url="", lang="", email=""):
+        with open(self.config_file, 'r') as file:
+            filedata = file.read()
+        filedata = filedata.format(name=title, description=description, lang=lang, url=url, email=email)
+        with open(self.config_file, 'w') as file:
+            file.write(filedata)
+
 class ExpressApp(Site):
     template=f"{templates_dir}/App Express"
     build_commands=["npm i"]
     preview_commands=["PORT=8080 npm start"]
     static=False
+
+    def subst(self, title, description="", url="", lang="", email=""):
+        for file in files(self.path):
+            with open(file, 'r') as f:
+                filedata = f.read()            
+            filedata = filedata.replace("{name}", title)
+            filedata = filedata.replace("{description}", description)
+            filedata = filedata.replace("{lang}", lang)
+            filedata = filedata.replace("{url}", url)
+            filedata = filedata.replace("{email}", email)
+            with open(file, 'w') as f:
+                f.write(filedata)
 
 
 if args.name:
