@@ -85,7 +85,7 @@ class JekyllSite(Site):
     static=True
 
     def __init__(self, name, parent_dir):
-        super().__init__(self, name, parent_dir)
+        super().__init__(name, parent_dir)
         self.index_file = os.path.join(self.path, "index.markdown")
         self.config_file = os.path.join(self.path, "_config.yml")
 
