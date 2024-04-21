@@ -102,10 +102,17 @@ class ExpressApp(Site):
     preview_commands=["PORT=8080 npm start"]
     static=False
 
+    def __init__(self, name, parent_dir):
+        super().__init__(name, parent_dir)
+        self.binary_file = os.path.join(self.path, "bin", "www")
+
     def subst(self, title, description="", url="", lang="", email=""):
         for file in files(self.path):
             with open(file, 'r') as f:
-                filedata = f.read()            
+                filedata = f.read()
+            name = title
+            if "package" in file:
+                name = title.lower()
             filedata = filedata.replace("{name}", title)
             filedata = filedata.replace("{description}", description)
             filedata = filedata.replace("{lang}", lang)
@@ -113,6 +120,13 @@ class ExpressApp(Site):
             filedata = filedata.replace("{email}", email)
             with open(file, 'w') as f:
                 f.write(filedata)
+        try:
+            with open(self.binary_file, 'r') as b:
+                filedata = b.read()
+            filedata = filedata.replace("{name}", title.lower())
+            with open(self.binary_file, 'w') as b:
+                b.write(filedata)
+        except: pass
 
 
 if args.name:
