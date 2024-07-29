@@ -9,6 +9,14 @@
 	<link rel="stylesheet" href="/style.css">
 </head>
 <body>
+	<header>
+		<nav>
+			<menu>{% for link in page.links %}
+				<li><a href="{{ link[1] }}"{% if link[1] == page.url %} class="active"{% endif %}>{{ link[0] }}</a>{% endfor %}
+			</menu>
+		</nav>
+	</header>
+
 	{{ content }}
 </body>
 </html>
